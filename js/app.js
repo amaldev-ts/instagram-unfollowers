@@ -156,20 +156,7 @@ loadSelectedUsers();
 document.addEventListener('DOMContentLoaded', () => {
     loadTheme();
 
-    // Build A-Z buttons safely (no document.write)
-    const filter = document.getElementById('alphabetFilter');
-    if (filter) {
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l => {
-            const btn = document.createElement('button');
-            btn.className = 'letter-btn';
-            btn.dataset.letter = l;
-            btn.textContent = l;
-            btn.onclick = function() { setLetterFilter(l, this); };
-            filter.appendChild(btn);
-        });
-    }
-
-    // Check cached data
+    // Alphabetic buttons removed — searches use the search input
     setTimeout(checkCachedData, 300);
 });
 
