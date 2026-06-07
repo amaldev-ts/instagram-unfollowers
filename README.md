@@ -68,7 +68,6 @@ The application automatically detects:
 
 * Username Search
 * Category Filters
-* A–Z Quick Filters
 * Advanced Sorting Options
 * Real-Time Filtering
 * Instant Results
