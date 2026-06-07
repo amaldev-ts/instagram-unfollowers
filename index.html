@@ -8,282 +8,313 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
-    <!-- Loader -->
-    <div id="loader" class="loader-overlay hidden">
-        <div class="loader-spinner">
-            <div class="spinner"></div>
-            <p>Analyzing your data...</p>
-        </div>
+
+<!-- Loader -->
+<div id="loader" class="loader-overlay hidden">
+    <div class="loader-spinner">
+        <div class="spinner"></div>
+        <p>Analyzing your data...</p>
     </div>
+</div>
 
-    <!-- Theme Toggle Button -->
-    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">
-        <i class="fas fa-sun" id="themeIcon"></i>
-    </button>
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-container"></div>
 
-    <!-- Header -->
-    <header class="header">
-        <div class="header-container">
-            <div class="logo">
-                <i class="fab fa-instagram logo-icon"></i>
-                <h1>Unfollowers Finder</h1>
-            </div>
-            <p class="tagline">Discover who doesn't follow you back on Instagram</p>
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">
+    <i class="fas fa-sun" id="themeIcon"></i>
+</button>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-container">
+        <div class="logo">
+            <i class="fab fa-instagram logo-icon"></i>
+            <h1>Unfollowers Finder</h1>
         </div>
-    </header>
+        <p class="tagline">Discover who doesn't follow you back on Instagram</p>
+        <div class="header-actions"></div>
+    </div>
+</header>
 
-    <!-- Main Content -->
-    <main class="main-content">
+<!-- Main Content -->
+<main class="main-content">
 
-        <!-- Instructions Section -->
-        <section class="instructions-section" id="instructionsSection">
-            <div class="card">
-                <div class="card-header" onclick="toggleInstructions()">
-                    <h2><i class="fas fa-info-circle"></i> How to Get Your Instagram Data ZIP</h2>
-                    <i class="fas fa-chevron-down toggle-icon" id="toggleIcon"></i>
-                </div>
-                <div class="card-body instructions-body" id="instructionsBody">
-                    <div class="steps">
-                        <div class="step">
-                            <div class="step-number">1</div>
-                            <div class="step-content">
-                                <h3>Open Instagram Settings</h3>
-                                <p>Go to your Instagram profile → tap <strong>☰ Menu</strong> → <strong>Settings and Privacy</strong></p>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">2</div>
-                            <div class="step-content">
-                                <h3>Accounts Center</h3>
-                                <p>Tap <strong>Accounts Center</strong> → <strong>Your Information and Permissions</strong></p>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">3</div>
-                            <div class="step-content">
-                                <h3>Download Your Information</h3>
-                                <p>Tap <strong>Download Your Information</strong> → <strong>Download or Transfer Information</strong></p>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">4</div>
-                            <div class="step-content">
-                                <h3>Select Your Account</h3>
-                                <p>Choose your Instagram account and tap <strong>Next</strong></p>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">5</div>
-                            <div class="step-content">
-                                <h3>Select Connections</h3>
-                                <p>Choose <strong>Some of Your Information</strong> → Select <strong>Connections</strong> → tap <strong>Next</strong></p>
-                            </div>
-                        </div>
-                        <div class="step highlight-step">
-                            <div class="step-number">6</div>
-                            <div class="step-content">
-                                <h3>⚠️ Choose JSON Format (Important!)</h3>
-                                <p>Select <strong>Download to Device</strong> → Format: <strong style="color: var(--primary);">JSON</strong> (must be JSON, not HTML) → Date range: <strong>All Time</strong> → tap <strong>Create Files</strong></p>
-                            </div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">7</div>
-                            <div class="step-content">
-                                <h3>Download & Upload</h3>
-                                <p>Wait for Instagram to prepare your file. Download the ZIP and upload it below!</p>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Instructions -->
+    <section class="instructions-section" id="instructionsSection">
+        <div class="card">
+            <div class="card-header" onclick="toggleInstructions()">
+                <h2><i class="fas fa-info-circle"></i> How to Get Your Instagram Data ZIP</h2>
+                <i class="fas fa-chevron-down toggle-icon" id="toggleIcon"></i>
+            </div>
+            <div class="card-body instructions-body" id="instructionsBody">
+                <div class="steps">
+                    <div class="step"><div class="step-number">1</div><div class="step-content"><h3>Open Instagram Settings</h3><p>Go to your Instagram profile → tap <strong>☰ Menu</strong> → <strong>Settings and Privacy</strong></p></div></div>
+                    <div class="step"><div class="step-number">2</div><div class="step-content"><h3>Accounts Center</h3><p>Tap <strong>Accounts Center</strong> → <strong>Your Information and Permissions</strong></p></div></div>
+                    <div class="step"><div class="step-number">3</div><div class="step-content"><h3>Download Your Information</h3><p>Tap <strong>Download Your Information</strong> → <strong>Download or Transfer Information</strong></p></div></div>
+                    <div class="step"><div class="step-number">4</div><div class="step-content"><h3>Select Your Account</h3><p>Choose your Instagram account and tap <strong>Next</strong></p></div></div>
+                    <div class="step"><div class="step-number">5</div><div class="step-content"><h3>Select Connections</h3><p>Choose <strong>Some of Your Information</strong> → Select <strong>Connections</strong> → tap <strong>Next</strong></p></div></div>
+                    <div class="step highlight-step"><div class="step-number">6</div><div class="step-content"><h3>⚠️ Choose JSON Format (Important!)</h3><p>Select <strong>Download to Device</strong> → Format: <strong style="color:var(--primary)">JSON</strong> → Date range: <strong>All Time</strong> → tap <strong>Create Files</strong></p></div></div>
+                    <div class="step"><div class="step-number">7</div><div class="step-content"><h3>Download & Upload</h3><p>Wait for Instagram to prepare your file. Download the ZIP and upload it below!</p></div></div>
                 </div>
             </div>
-        </section>
-
-        <!-- Format Recommendation Notice -->
-        <section class="format-notice-section">
-            <div class="format-notice">
-                <div class="format-notice-icon">
-                    <i class="fas fa-lightbulb"></i>
-                </div>
-                <div class="format-notice-content">
-                    <h3>Important: Use JSON Format</h3>
-                    <p>When downloading your Instagram data, please select <strong>JSON</strong> format (not HTML) for best results and accurate analysis.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Upload Section -->
-        <section class="upload-section" id="uploadSection">
-            <div class="card">
-                <div class="card-header" style="cursor:default">
-                    <h2><i class="fas fa-cloud-upload-alt"></i> Upload Your Data</h2>
-                </div>
-                <div class="card-body">
-                    <div class="drop-zone" id="dropZone">
-                        <div class="drop-zone-content">
-                            <i class="fas fa-file-archive drop-icon"></i>
-                            <h3>Drag & Drop your ZIP file here</h3>
-                            <p>or click to browse files</p>
-                            <span class="file-hint"><i class="fas fa-info-circle"></i> ZIP file must contain JSON files (not HTML)</span>
-                        </div>
-                        <input type="file" id="fileInput" accept=".zip" hidden>
-                    </div>
-                    <div class="file-info hidden" id="fileInfo">
-                        <i class="fas fa-check-circle"></i>
-                        <span id="fileName"></span>
-                        <button class="btn-remove" onclick="removeFile()"><i class="fas fa-times"></i></button>
-                    </div>
-                    <button class="btn-analyze hidden" id="analyzeBtn" onclick="analyzeData()">
-                        <i class="fas fa-search"></i> Analyze Data
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Disclaimer -->
-        <section class="disclaimer-section" id="disclaimerSection">
-            <div class="disclaimer-card">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p><strong>Disclaimer:</strong> Due to Instagram's new policy, deactivated and deleted accounts may also appear in the results. Some accounts shown might no longer be active on Instagram. This tool processes data entirely in your browser — no data is uploaded to any server.</p>
-            </div>
-        </section>
-
-        <!-- Stats Section -->
-        <section class="stats-section hidden" id="statsSection">
-            <div class="stats-grid">
-                <div class="stat-card stat-followers">
-                    <div class="stat-icon"><i class="fas fa-users"></i></div>
-                    <div class="stat-info">
-                        <h3 id="totalFollowers">0</h3>
-                        <p>Followers</p>
-                    </div>
-                </div>
-                <div class="stat-card stat-following">
-                    <div class="stat-icon"><i class="fas fa-user-plus"></i></div>
-                    <div class="stat-info">
-                        <h3 id="totalFollowing">0</h3>
-                        <p>Following</p>
-                    </div>
-                </div>
-                <div class="stat-card stat-unfollowers">
-                    <div class="stat-icon"><i class="fas fa-user-minus"></i></div>
-                    <div class="stat-info">
-                        <h3 id="totalUnfollowers">0</h3>
-                        <p>Unfollowers</p>
-                    </div>
-                </div>
-                <div class="stat-card stat-fans">
-                    <div class="stat-icon"><i class="fas fa-heart"></i></div>
-                    <div class="stat-info">
-                        <h3 id="totalFans">0</h3>
-                        <p>Fans</p>
-                    </div>
-                </div>
-                <div class="stat-card stat-mutuals">
-                    <div class="stat-icon"><i class="fas fa-handshake"></i></div>
-                    <div class="stat-info">
-                        <h3 id="totalMutuals">0</h3>
-                        <p>Mutuals</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Results Section -->
-        <section class="results-section hidden" id="resultsSection">
-            <div class="tabs">
-                <button class="tab active" data-tab="unfollowers" onclick="switchTab('unfollowers', this)">
-                    <i class="fas fa-user-minus"></i> Unfollowers <span class="tab-count" id="tabUnfollowers">0</span>
-                </button>
-                <button class="tab" data-tab="fans" onclick="switchTab('fans', this)">
-                    <i class="fas fa-heart"></i> Fans <span class="tab-count" id="tabFans">0</span>
-                </button>
-                <button class="tab" data-tab="mutuals" onclick="switchTab('mutuals', this)">
-                    <i class="fas fa-handshake"></i> Mutuals <span class="tab-count" id="tabMutuals">0</span>
-                </button>
-                <button class="tab" data-tab="followers" onclick="switchTab('followers', this)">
-                    <i class="fas fa-users"></i> Followers <span class="tab-count" id="tabFollowers">0</span>
-                </button>
-                <button class="tab" data-tab="following" onclick="switchTab('following', this)">
-                    <i class="fas fa-user-plus"></i> Following <span class="tab-count" id="tabFollowing">0</span>
-                </button>
-                <button class="tab" data-tab="pending" onclick="switchTab('pending', this)">
-                    <i class="fas fa-clock"></i> Pending <span class="tab-count" id="tabPending">0</span>
-                </button>
-                <button class="tab" data-tab="blocked" onclick="switchTab('blocked', this)">
-                    <i class="fas fa-ban"></i> Blocked <span class="tab-count" id="tabBlocked">0</span>
-                </button>
-                <button class="tab" data-tab="recentlyUnfollowed" onclick="switchTab('recentlyUnfollowed', this)">
-                    <i class="fas fa-user-slash"></i> Recently Unfollowed <span class="tab-count" id="tabRecentlyUnfollowed">0</span>
-                </button>
-                <button class="tab" data-tab="recentRequests" onclick="switchTab('recentRequests', this)">
-                    <i class="fas fa-paper-plane"></i> Recent Requests <span class="tab-count" id="tabRecentRequests">0</span>
-                </button>
-                <button class="tab" data-tab="restricted" onclick="switchTab('restricted', this)">
-                    <i class="fas fa-eye-slash"></i> Restricted <span class="tab-count" id="tabRestricted">0</span>
-                </button>
-                <button class="tab" data-tab="closeFriends" onclick="switchTab('closeFriends', this)">
-                    <i class="fas fa-star"></i> Close Friends <span class="tab-count" id="tabCloseFriends">0</span>
-                </button>
-                <button class="tab" data-tab="hideStoryFrom" onclick="switchTab('hideStoryFrom', this)">
-                    <i class="fas fa-user-secret"></i> Hide Story From <span class="tab-count" id="tabHideStoryFrom">0</span>
-                </button>
-            </div>
-
-            <div class="action-bar">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search usernames..." oninput="filterList()">
-                </div>
-                <div class="download-buttons">
-                    <button class="btn-download btn-pdf" onclick="downloadPDF()">
-                        <i class="fas fa-file-pdf"></i> PDF
-                    </button>
-                    <button class="btn-download btn-json" onclick="downloadJSON()">
-                        <i class="fas fa-file-code"></i> JSON
-                    </button>
-                    <button class="btn-download btn-html" onclick="downloadHTML()">
-                        <i class="fas fa-file-alt"></i> HTML
-                    </button>
-                    <button class="btn-download btn-csv" onclick="downloadCSV()">
-                        <i class="fas fa-file-csv"></i> CSV
-                    </button>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-body list-container">
-                    <div class="user-list" id="userList"></div>
-                    <div class="empty-state hidden" id="emptyState"></div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="credits">
-                <p>Built with <i class="fas fa-heart" style="color: #e74c3c;"></i> by 
-                    <a href="https://instagram.com/amaldev_ts" target="_blank" rel="noopener noreferrer" class="author-link">Amal Dev TS</a>
-                </p>
-            </div>
-            <div class="social-links">
-                <a href="mailto:amalts5885@gmail.com" class="social-link gmail-link" title="Gmail">
-                    <i class="fas fa-envelope"></i>
-                </a>
-                <a href="https://github.com/amaldev-ts" class="social-link github-link" title="GitHub" target="_blank">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="https://instagram.com/amaldev_ts" class="social-link instagram-link" title="Instagram" target="_blank">
-                    <i class="fab fa-instagram"></i>
-                </a>
-            </div>
-            <p class="copyright">© 2026 Instagram Unfollowers Finder. All data is processed locally in your browser.</p>
         </div>
-    </footer>
+    </section>
 
-    <script src="js/app.js"></script>
+    <!-- Format Notice -->
+    <section class="format-notice-section">
+        <div class="format-notice">
+            <div class="format-notice-icon"><i class="fas fa-lightbulb"></i></div>
+            <div class="format-notice-content">
+                <h3>Important: Use JSON Format</h3>
+                <p>When downloading your Instagram data, please select <strong>JSON</strong> format (not HTML) for best results and accurate analysis.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upload -->
+    <section class="upload-section" id="uploadSection">
+        <div class="card">
+            <div class="card-header" style="cursor:default">
+                <h2><i class="fas fa-cloud-upload-alt"></i> Upload Your Data</h2>
+            </div>
+            <div class="card-body">
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-zone-content">
+                        <i class="fas fa-file-archive drop-icon"></i>
+                        <h3>Drag & Drop your ZIP file here</h3>
+                        <p>or click to browse files</p>
+                        <span class="file-hint"><i class="fas fa-info-circle"></i> ZIP file must contain JSON files (not HTML)</span>
+                    </div>
+                    <input type="file" id="fileInput" accept=".zip" hidden>
+                </div>
+                <div class="file-info hidden" id="fileInfo">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="fileName"></span>
+                    <button class="btn-remove" onclick="removeFile()"><i class="fas fa-times"></i></button>
+                </div>
+                <button class="btn-analyze hidden" id="analyzeBtn" onclick="analyzeData()">
+                    <i class="fas fa-search"></i> Analyze Data
+                </button>
+
+                <!-- Cached Data Banner -->
+                <div class="cached-banner hidden" id="cachedBanner">
+                    <div class="cached-info">
+                        <i class="fas fa-database"></i>
+                        <div>
+                            <h4>Previous data found!</h4>
+                            <p id="cachedInfo">Analyzed on —</p>
+                        </div>
+                    </div>
+                    <div class="cached-actions">
+                        <button class="btn-cached-restore" onclick="restoreCachedData()">
+                            <i class="fas fa-undo"></i> Restore
+                        </button>
+                        <button class="btn-cached-clear" onclick="clearCachedData()">
+                            <i class="fas fa-trash"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Disclaimer -->
+    <section class="disclaimer-section">
+        <div class="disclaimer-card">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p><strong>Disclaimer:</strong> Due to Instagram's new policy, deactivated and deleted accounts may also appear in results. This tool processes data entirely in your browser — no data is uploaded to any server.</p>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-section hidden" id="statsSection">
+        <div class="stats-grid">
+            <div class="stat-card stat-followers"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-info"><h3 id="totalFollowers">0</h3><p>Followers</p></div></div>
+            <div class="stat-card stat-following"><div class="stat-icon"><i class="fas fa-user-plus"></i></div><div class="stat-info"><h3 id="totalFollowing">0</h3><p>Following</p></div></div>
+            <div class="stat-card stat-unfollowers"><div class="stat-icon"><i class="fas fa-user-minus"></i></div><div class="stat-info"><h3 id="totalUnfollowers">0</h3><p>Unfollowers</p></div></div>
+            <div class="stat-card stat-fans"><div class="stat-icon"><i class="fas fa-heart"></i></div><div class="stat-info"><h3 id="totalFans">0</h3><p>Fans</p></div></div>
+            <div class="stat-card stat-mutuals"><div class="stat-icon"><i class="fas fa-handshake"></i></div><div class="stat-info"><h3 id="totalMutuals">0</h3><p>Mutuals</p></div></div>
+        </div>
+    </section>
+
+    <!-- Dashboard -->
+    <section class="dashboard-section hidden" id="dashboardSection">
+        <div class="card">
+            <div class="card-header" onclick="toggleDashboard()">
+                <h2><i class="fas fa-chart-pie"></i> Statistics Dashboard</h2>
+                <i class="fas fa-chevron-down toggle-icon" id="dashboardToggleIcon"></i>
+            </div>
+            <div class="dashboard-body" id="dashboardBody">
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Account Overview</h3>
+                        <div class="chart-wrapper"><canvas id="donutChart"></canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <h3 class="chart-title"><i class="fas fa-chart-bar"></i> All Categories</h3>
+                        <div class="chart-wrapper"><canvas id="barChart"></canvas></div>
+                    </div>
+                    <div class="chart-card chart-card-full">
+                        <h3 class="chart-title"><i class="fas fa-chart-line"></i> Follow Ratio Analysis</h3>
+                        <div class="ratio-bars">
+                            <div class="ratio-item">
+                                <div class="ratio-label"><span>Unfollowers</span><span class="ratio-value" id="ratioUnfollowers">0%</span></div>
+                                <div class="ratio-bar-bg"><div class="ratio-bar-fill ratio-danger" id="ratioBarUnfollowers" style="width:0%"></div></div>
+                            </div>
+                            <div class="ratio-item">
+                                <div class="ratio-label"><span>Fans</span><span class="ratio-value" id="ratioFans">0%</span></div>
+                                <div class="ratio-bar-bg"><div class="ratio-bar-fill ratio-success" id="ratioBarFans" style="width:0%"></div></div>
+                            </div>
+                            <div class="ratio-item">
+                                <div class="ratio-label"><span>Mutuals</span><span class="ratio-value" id="ratioMutuals">0%</span></div>
+                                <div class="ratio-bar-bg"><div class="ratio-bar-fill ratio-info" id="ratioBarMutuals" style="width:0%"></div></div>
+                            </div>
+                            <div class="ratio-item">
+                                <div class="ratio-label"><span>Blocked</span><span class="ratio-value" id="ratioBlocked">0%</span></div>
+                                <div class="ratio-bar-bg"><div class="ratio-bar-fill ratio-warning" id="ratioBarBlocked" style="width:0%"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results -->
+    <section class="results-section hidden" id="resultsSection">
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="unfollowers" onclick="switchTab('unfollowers',this)"><i class="fas fa-user-minus"></i> Unfollowers <span class="tab-count" id="tabUnfollowers">0</span></button>
+            <button class="tab" data-tab="fans" onclick="switchTab('fans',this)"><i class="fas fa-heart"></i> Fans <span class="tab-count" id="tabFans">0</span></button>
+            <button class="tab" data-tab="mutuals" onclick="switchTab('mutuals',this)"><i class="fas fa-handshake"></i> Mutuals <span class="tab-count" id="tabMutuals">0</span></button>
+            <button class="tab" data-tab="followers" onclick="switchTab('followers',this)"><i class="fas fa-users"></i> Followers <span class="tab-count" id="tabFollowers">0</span></button>
+            <button class="tab" data-tab="following" onclick="switchTab('following',this)"><i class="fas fa-user-plus"></i> Following <span class="tab-count" id="tabFollowing">0</span></button>
+            <button class="tab" data-tab="pending" onclick="switchTab('pending',this)"><i class="fas fa-clock"></i> Pending <span class="tab-count" id="tabPending">0</span></button>
+            <button class="tab" data-tab="blocked" onclick="switchTab('blocked',this)"><i class="fas fa-ban"></i> Blocked <span class="tab-count" id="tabBlocked">0</span></button>
+            <button class="tab" data-tab="recentlyUnfollowed" onclick="switchTab('recentlyUnfollowed',this)"><i class="fas fa-user-slash"></i> Recently Unfollowed <span class="tab-count" id="tabRecentlyUnfollowed">0</span></button>
+            <button class="tab" data-tab="recentRequests" onclick="switchTab('recentRequests',this)"><i class="fas fa-paper-plane"></i> Recent Requests <span class="tab-count" id="tabRecentRequests">0</span></button>
+            <button class="tab" data-tab="restricted" onclick="switchTab('restricted',this)"><i class="fas fa-eye-slash"></i> Restricted <span class="tab-count" id="tabRestricted">0</span></button>
+            <button class="tab" data-tab="closeFriends" onclick="switchTab('closeFriends',this)"><i class="fas fa-star"></i> Close Friends <span class="tab-count" id="tabCloseFriends">0</span></button>
+            <button class="tab" data-tab="hideStoryFrom" onclick="switchTab('hideStoryFrom',this)"><i class="fas fa-user-secret"></i> Hide Story From <span class="tab-count" id="tabHideStoryFrom">0</span></button>
+        </div>
+
+        <!-- Undo / Redo Bar -->
+        <div class="undo-redo-bar">
+            <div class="undo-redo-left">
+                <button class="btn-undo-redo" id="btnUndo" onclick="undoAction()" title="Undo" disabled>
+                    <i class="fas fa-undo"></i> Undo
+                </button>
+                <button class="btn-undo-redo" id="btnRedo" onclick="redoAction()" title="Redo" disabled>
+                    <i class="fas fa-redo"></i> Redo
+                </button>
+                <span class="undo-history-label" id="undoHistoryLabel"></span>
+            </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search usernames..." oninput="filterList()">
+                <button class="btn-clear-search hidden" id="btnClearSearch" onclick="clearSearch()" title="Clear search">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="filter-dropdown">
+                <select id="filterSelect" onchange="filterList()" class="filter-select">
+                    <option value="all">All Users</option>
+                    <option value="marked">Marked Only</option>
+                    <option value="unmarked">Unmarked Only</option>
+                </select>
+            </div>
+
+            <div class="filter-dropdown">
+                <select id="patternFilter" onchange="filterList()" class="filter-select">
+                    <option value="contains">Contains</option>
+                    <option value="startswith">Starts With</option>
+                    <option value="endswith">Ends With</option>
+                </select>
+            </div>
+
+            <div class="filter-dropdown">
+                <select id="sortSelect" onchange="filterList()" class="filter-select">
+                    <option value="default">Sort: Default</option>
+                    <option value="az">Sort: A → Z</option>
+                    <option value="za">Sort: Z → A</option>
+                    <option value="date_new">Sort: Newest</option>
+                    <option value="date_old">Sort: Oldest</option>
+                    <option value="marked_first">Marked First</option>
+                    <option value="unmarked_first">Unmarked First</option>
+                </select>
+            </div>
+
+            <div class="download-buttons">
+                <button class="btn-download btn-pdf" onclick="downloadPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+                <button class="btn-download btn-json" onclick="downloadJSON()"><i class="fas fa-file-code"></i> JSON</button>
+                <button class="btn-download btn-html" onclick="downloadHTML()"><i class="fas fa-file-alt"></i> HTML</button>
+                <button class="btn-download btn-csv" onclick="downloadCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+                <button class="btn-download btn-excel" onclick="downloadExcel()"><i class="fas fa-file-excel"></i> Excel</button>
+            </div>
+        </div>
+
+        <!-- A-Z + _ + # Filter (alphabet built by JS, no document.write) -->
+        <div class="alphabet-filter" id="alphabetFilter">
+            <button class="letter-btn active" data-letter="all" onclick="setLetterFilter('all', this)">All</button>
+            <button class="letter-btn" data-letter="_" onclick="setLetterFilter('_', this)" title="Starts with underscore">_</button>
+            <button class="letter-btn" data-letter="#" onclick="setLetterFilter('#', this)" title="Starts with number">#</button>
+        </div>
+
+        <!-- Bulk Bar -->
+        <div class="bulk-bar">
+            <div class="bulk-bar-left">
+                <label class="bulk-checkbox-label">
+                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
+                    <span>Select All</span>
+                </label>
+                <span class="bulk-count" id="bulkCount">0 selected</span>
+            </div>
+            <div class="bulk-bar-right">
+                <button class="btn-bulk btn-bulk-mark" onclick="bulkMarkSelected()"><i class="fas fa-check-double"></i> Mark Selected</button>
+                <button class="btn-bulk btn-bulk-unmark" onclick="bulkUnmarkSelected()"><i class="fas fa-undo"></i> Unmark Selected</button>
+                <button class="btn-bulk btn-bulk-clear" onclick="clearAllMarked()"><i class="fas fa-trash-alt"></i> Clear All Marked</button>
+            </div>
+        </div>
+
+        <!-- List -->
+        <div class="card">
+            <div class="card-body list-container" id="listContainer">
+                <div class="user-list" id="userList"></div>
+                <div class="empty-state hidden" id="emptyState"></div>
+            </div>
+        </div>
+
+    </section>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="credits">
+            <p>Built with <i class="fas fa-heart" style="color:#e74c3c"></i> by
+                <a href="https://instagram.com/amaldev_ts" target="_blank" rel="noopener noreferrer" class="author-link">Amal Dev TS</a>
+            </p>
+        </div>
+        <div class="social-links">
+            <a href="mailto:amalts5885@gmail.com" class="social-link gmail-link" title="Gmail"><i class="fas fa-envelope"></i></a>
+            <a href="https://github.com/amaldev-ts" class="social-link github-link" title="GitHub" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://instagram.com/amaldev_ts" class="social-link instagram-link" title="Instagram" target="_blank"><i class="fab fa-instagram"></i></a>
+        </div>
+        <p class="copyright">© 2026 Instagram Unfollowers Finder. All data is processed locally in your browser.</p>
+    </div>
+</footer>
+
+<script src="js/app.js"></script>
 </body>
 </html>
