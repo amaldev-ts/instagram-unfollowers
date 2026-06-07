@@ -1,47 +1,92 @@
 # 📸 Instagram Unfollowers Finder
 
-A modern, privacy-focused web application that analyzes your Instagram data export and provides detailed insights into your followers, following, mutuals, fans, unfollowers, pending requests, and more.
+A modern, privacy-focused Instagram analytics tool that helps you discover unfollowers, fans, mutuals, pending requests, blocked users, restricted accounts, close friends, and much more — all processed directly in your browser.
 
 🔗 **Live Demo:** https://amaldev-ts.github.io/instagram-unfollowers/
 
 ![Made by](https://img.shields.io/badge/Made%20by-Amal%20Dev%20TS-E1306C)
-![HTML](https://img.shields.io/badge/HTML5-orange)
-![CSS](https://img.shields.io/badge/CSS3-blue)
-![JavaScript](https://img.shields.io/badge/JavaScript-yellow)
 ![License](https://img.shields.io/badge/License-MIT-green)
+![HTML5](https://img.shields.io/badge/HTML5-orange)
+![CSS3](https://img.shields.io/badge/CSS3-blue)
+![JavaScript](https://img.shields.io/badge/JavaScript-yellow)
 
 ---
 
-## ✨ Features
+# ✨ Features
 
-### 📊 Advanced Instagram Analytics
+## 🔍 Instagram Relationship Analysis
 
 * Find users who don't follow you back
-* Discover your fans (followers you don't follow back)
+* Discover your fans (followers you don't follow)
 * View mutual followers
-* Analyze followers and following lists
-* View pending follow requests
-* Statistics dashboard with instant insights
+* Analyze followers list
+* Analyze following list
+* Track pending requests
+* View recently unfollowed accounts
+* Analyze recent follow requests
 
-### 🔍 Smart Search & Filtering
+## 📊 Advanced Statistics Dashboard
 
-* Search users by username
-* Filter by category
-* Alphabetical quick filters (A–Z)
-* Advanced sorting options
-* Real-time result updates
+* Total Followers Count
+* Total Following Count
+* Total Unfollowers Count
+* Total Fans Count
+* Total Mutuals Count
+* Total Pending Requests Count
+* Total Blocked Users Count
+* Total Restricted Users Count
+* Total Close Friends Count
+* Total Hide Story From Count
 
-### ✅ User Management
+## 📈 Interactive Analytics
 
-* Mark selected users
-* Unmark selected users
-* Bulk selection tools
-* Track already reviewed accounts
-* Undo / Redo actions
+* Doughnut Chart Overview
+* Category Comparison Bar Chart
+* Follow Ratio Analysis
+* Percentage-Based Statistics
+* Visual Data Insights
+* Real-Time Dashboard Updates
 
-### 📥 Export Results
+## 👥 Advanced Categories
 
-Export data in multiple formats:
+The application automatically detects:
+
+* 👥 Followers
+* ➕ Following
+* ❌ Unfollowers
+* ❤️ Fans
+* 🤝 Mutuals
+* ⏳ Pending Requests
+* 🚫 Blocked Users
+* 🙈 Restricted Users
+* 📉 Recently Unfollowed
+* 📩 Recent Follow Requests
+* ⭐ Close Friends
+* 🕶️ Hide Story From
+
+## 🔎 Search & Filtering
+
+* Username Search
+* Category Filters
+* A–Z Quick Filters
+* Advanced Sorting Options
+* Real-Time Filtering
+* Instant Results
+
+## ✅ User Management
+
+* Select Individual Users
+* Select All Users
+* Mark Selected Users
+* Unmark Selected Users
+* Clear All Marks
+* Undo Actions
+* Redo Actions
+* Track Reviewed Accounts
+
+## 📥 Export Options
+
+Export results in multiple formats:
 
 * PDF
 * JSON
@@ -49,55 +94,95 @@ Export data in multiple formats:
 * CSV
 * Excel
 
-### 🎨 Modern User Experience
+## 🎨 User Experience
 
-* Beautiful Instagram-inspired UI
-* Dark / Light theme support
-* Responsive design
-* Mobile-friendly interface
-* Animated transitions
-* Drag & Drop ZIP upload
+* Beautiful Instagram-inspired Design
+* Dark Theme Interface
+* Responsive Layout
+* Mobile Friendly
+* Drag & Drop Upload
+* Smooth Animations
+* Interactive Dashboard
 
-### 🔒 Privacy First
+## 🔒 Privacy First
 
-* 100% browser-based processing
-* No server uploads
-* No login required
-* No Instagram credentials needed
-* Data never leaves your device
+* 100% Browser-Based Processing
+* No Data Uploads
+* No Server Storage
+* No Login Required
+* No Instagram Credentials Needed
+* Data Never Leaves Your Device
 
 ---
 
-## 🚀 How To Use
+# 📊 Statistics Dashboard
 
-### Step 1: Request Your Instagram Data
+The dashboard provides powerful visual insights into your Instagram account.
 
-Instagram → Settings → Accounts Center → Your Information and Permissions → Download Your Information
+### Account Overview
 
-Select:
+* Total Followers
+* Total Following
+* Total Mutuals
+* Total Unfollowers
+* Total Fans
+* Pending Requests
+* Blocked Users
+* Restricted Users
 
-* Connections
+### Visual Analytics
+
+* Doughnut Chart Analysis
+* Bar Chart Comparison
+* Follow Ratio Analysis
+* Percentage Metrics
+* Category Performance Overview
+
+---
+
+# 🚀 How To Use
+
+## Step 1: Request Instagram Data
+
+Open Instagram:
+
+Settings → Accounts Center → Your Information and Permissions → Download Your Information
+
+Choose:
+
 * Followers and Following
 * JSON Format (Important)
 
-### Step 2: Download the ZIP File
+⚠️ Select **JSON** format instead of HTML for accurate analysis.
 
-Wait for Instagram to generate your data package and download the ZIP file.
+---
 
-### Step 3: Upload Data
+## Step 2: Download Your ZIP File
 
-* Drag and drop the ZIP file into the application
-* Or click the upload area and select the ZIP file manually
+Wait for Instagram to prepare your data and download the ZIP archive.
 
-### Step 4: Analyze
+---
+
+## Step 3: Upload Data
+
+* Drag & Drop ZIP file
+* Or click to browse files
+
+The ZIP must contain Instagram JSON files.
+
+---
+
+## Step 4: Analyze
 
 Click:
 
-Analyze Data
+**Analyze Data**
 
-The application will automatically process your Instagram data.
+The application will process the data locally in your browser.
 
-### Step 5: Explore Results
+---
+
+## Step 5: Explore Results
 
 View:
 
@@ -107,43 +192,58 @@ View:
 * Followers
 * Following
 * Pending Requests
+* Blocked Users
+* Restricted Users
+* Recently Unfollowed
+* Recent Requests
+* Close Friends
+* Hide Story From
 
 ---
 
-## 📸 Dashboard Features
+# 📸 Screenshots
 
-### Statistics Dashboard
+## Upload & Analysis
 
-* Total Followers
-* Total Following
-* Unfollowers Count
-* Fans Count
-* Mutuals Count
+* Drag and Drop ZIP Upload
+* Automatic Instagram Data Detection
+* Analysis Progress Notifications
 
-### User Cards
+## Dashboard
 
-Each user card displays:
+* Account Overview Cards
+* Doughnut Analytics Chart
+* Category Comparison Graph
+* Follow Ratio Analysis
 
-* Profile Initial
-* Username
-* Follow Date
-* Instagram Profile Link
-* Selection Status
+## User Categories
+
+* Unfollowers List
+* Fans List
+* Mutuals List
+* Followers List
+* Following List
+* Pending Requests
+* Blocked Users
+* Restricted Users
+* Close Friends
+* Hide Story From
 
 ---
 
-## 🛠️ Built With
+# 🛠️ Technologies Used
 
 * HTML5
 * CSS3
 * Vanilla JavaScript
 * JSZip
+* Chart.js
 * Browser File APIs
 * Local Storage
 
 ---
 
-## 📁 Project Structure
+# 📁 Project Structure
 
 ```text
 instagram-unfollowers/
@@ -158,9 +258,9 @@ instagram-unfollowers/
 
 ---
 
-## 👨‍💻 Developer
+# 👨‍💻 Developer
 
-### Amal Dev T S
+## Amal Dev T S
 
 📧 Email: [amalts5885@gmail.com](mailto:amalts5885@gmail.com)
 
@@ -172,20 +272,24 @@ https://instagram.com/amaldev_ts
 
 ---
 
-## ⚠️ Disclaimer
+# ⚠️ Disclaimer
 
 This project is not affiliated with Instagram or Meta.
 
-The application works exclusively with data exported by the user through Instagram's official data download feature.
+The application works exclusively with data exported by users through Instagram's official data download feature.
 
-Due to Instagram account changes, suspended accounts, deleted accounts, or privacy settings, some results may vary.
+Due to account deletions, suspensions, privacy settings, and Instagram policy changes, some results may vary.
+
+All processing occurs locally in the browser. No user data is uploaded to any server.
 
 ---
 
-## 📄 License
+# 📄 License
 
 MIT License
 
 ---
 
-⭐ If you found this project useful, consider giving it a star on GitHub!
+⭐ If you found this project useful, please consider giving it a star on GitHub!
+
+Made with ❤️ by **Amal Dev T S**
