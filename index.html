@@ -81,14 +81,13 @@
                                 <p>Choose <strong>Some of Your Information</strong> → Select <strong>Connections</strong> → tap <strong>Next</strong></p>
                             </div>
                         </div>
-                        <div class="step">
-                           <div class="step highlight-step">
-    <div class="step-number">6</div>
-    <div class="step-content">
-        <h3>⚠️ Choose JSON Format (Important!)</h3>
-        <p>Select <strong>Download to Device</strong> → Format: <strong style="color: var(--primary);">JSON</strong> (must be JSON, not HTML) → Date range: <strong>All Time</strong> → tap <strong>Create Files</strong></p>
-    </div>
-</div>
+                        <div class="step highlight-step">
+                            <div class="step-number">6</div>
+                            <div class="step-content">
+                                <h3>⚠️ Choose JSON Format (Important!)</h3>
+                                <p>Select <strong>Download to Device</strong> → Format: <strong style="color: var(--primary);">JSON</strong> (must be JSON, not HTML) → Date range: <strong>All Time</strong> → tap <strong>Create Files</strong></p>
+                            </div>
+                        </div>
                         <div class="step">
                             <div class="step-number">7</div>
                             <div class="step-content">
@@ -101,22 +100,18 @@
             </div>
         </section>
 
-
-<!-- Format Recommendation Notice -->
-<section class="format-notice-section">
-    <div class="format-notice">
-        <div class="format-notice-icon">
-            <i class="fas fa-lightbulb"></i>
-        </div>
-        <div class="format-notice-content">
-            <h3>Important: Use JSON Format</h3>
-            <p>When downloading your Instagram data, please select <strong>JSON</strong> format (not HTML) for best results and accurate analysis.</p>
-        </div>
-    </div>
-</section>
-
-
-
+        <!-- Format Recommendation Notice -->
+        <section class="format-notice-section">
+            <div class="format-notice">
+                <div class="format-notice-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="format-notice-content">
+                    <h3>Important: Use JSON Format</h3>
+                    <p>When downloading your Instagram data, please select <strong>JSON</strong> format (not HTML) for best results and accurate analysis.</p>
+                </div>
+            </div>
+        </section>
 
         <!-- Upload Section -->
         <section class="upload-section" id="uploadSection">
@@ -130,7 +125,7 @@
                             <i class="fas fa-file-archive drop-icon"></i>
                             <h3>Drag & Drop your ZIP file here</h3>
                             <p>or click to browse files</p>
-                           <span class="file-hint"><i class="fas fa-info-circle"></i> ZIP file must contain JSON files (not HTML)</span>
+                            <span class="file-hint"><i class="fas fa-info-circle"></i> ZIP file must contain JSON files (not HTML)</span>
                         </div>
                         <input type="file" id="fileInput" accept=".zip" hidden>
                     </div>
@@ -228,6 +223,12 @@
                 <button class="tab" data-tab="restricted" onclick="switchTab('restricted', this)">
                     <i class="fas fa-eye-slash"></i> Restricted <span class="tab-count" id="tabRestricted">0</span>
                 </button>
+                <button class="tab" data-tab="closeFriends" onclick="switchTab('closeFriends', this)">
+                    <i class="fas fa-star"></i> Close Friends <span class="tab-count" id="tabCloseFriends">0</span>
+                </button>
+                <button class="tab" data-tab="hideStoryFrom" onclick="switchTab('hideStoryFrom', this)">
+                    <i class="fas fa-user-secret"></i> Hide Story From <span class="tab-count" id="tabHideStoryFrom">0</span>
+                </button>
             </div>
 
             <div class="action-bar">
@@ -235,29 +236,26 @@
                     <i class="fas fa-search"></i>
                     <input type="text" id="searchInput" placeholder="Search usernames..." oninput="filterList()">
                 </div>
-               <div class="download-buttons">
-    <button class="btn-download btn-pdf" onclick="downloadPDF()">
-        <i class="fas fa-file-pdf"></i> PDF
-    </button>
-    <button class="btn-download btn-json" onclick="downloadJSON()">
-        <i class="fas fa-file-code"></i> JSON
-    </button>
-    <button class="btn-download btn-html" onclick="downloadHTML()">
-        <i class="fas fa-file-alt"></i> HTML
-    </button>
-    <button class="btn-download btn-csv" onclick="downloadCSV()">
-        <i class="fas fa-file-csv"></i> CSV
-    </button>
-</div>
+                <div class="download-buttons">
+                    <button class="btn-download btn-pdf" onclick="downloadPDF()">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
+                    <button class="btn-download btn-json" onclick="downloadJSON()">
+                        <i class="fas fa-file-code"></i> JSON
+                    </button>
+                    <button class="btn-download btn-html" onclick="downloadHTML()">
+                        <i class="fas fa-file-alt"></i> HTML
+                    </button>
+                    <button class="btn-download btn-csv" onclick="downloadCSV()">
+                        <i class="fas fa-file-csv"></i> CSV
+                    </button>
+                </div>
             </div>
 
             <div class="card">
                 <div class="card-body list-container">
                     <div class="user-list" id="userList"></div>
-                    <div class="empty-state hidden" id="emptyState">
-                        <i class="fas fa-inbox"></i>
-                        <p>No users found</p>
-                    </div>
+                    <div class="empty-state hidden" id="emptyState"></div>
                 </div>
             </div>
         </section>
@@ -270,7 +268,6 @@
                 <p>Built with <i class="fas fa-heart" style="color: #e74c3c;"></i> by 
                     <a href="https://instagram.com/amaldev_ts" target="_blank" rel="noopener noreferrer" class="author-link">Amal Dev TS</a>
                 </p>
-                
             </div>
             <div class="social-links">
                 <a href="mailto:amalts5885@gmail.com" class="social-link gmail-link" title="Gmail">
@@ -283,7 +280,7 @@
                     <i class="fab fa-instagram"></i>
                 </a>
             </div>
-            <p class="copyright">© 2025 Instagram Unfollowers Finder. All data is processed locally in your browser.</p>
+            <p class="copyright">© 2026 Instagram Unfollowers Finder. All data is processed locally in your browser.</p>
         </div>
     </footer>
 

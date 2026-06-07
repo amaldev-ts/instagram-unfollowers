@@ -1,22 +1,22 @@
-// ========== INSTAGRAM UNFOLLOWERS FINDER - v4 ==========
-console.log('✅ app.js v4 LOADED');
+// ========== INSTAGRAM UNFOLLOWERS FINDER - v5 ==========
+console.log('✅ app.js v5 LOADED');
 
 // ========== GLOBAL STATE ==========
 let appData = {
     followers: [], following: [], unfollowers: [], fans: [], mutuals: [],
     pending: [], blocked: [], recentlyUnfollowed: [],
     recentRequests: [], restricted: [],
+    closeFriends: [], hideStoryFrom: [],
 };
 let currentTab = 'unfollowers';
 let selectedUsers = new Set();
 let uploadedFile = null;
 
-// ========== THEME TOGGLE ==========
+// ========== THEME ==========
 function loadTheme() {
     const saved = localStorage.getItem('theme') || 'dark';
     setTheme(saved);
 }
-
 function setTheme(theme) {
     if (theme === 'light') {
         document.documentElement.setAttribute('data-theme', 'light');
@@ -27,13 +27,10 @@ function setTheme(theme) {
     }
     localStorage.setItem('theme', theme);
 }
-
 function toggleTheme() {
     const current = localStorage.getItem('theme') || 'dark';
     setTheme(current === 'dark' ? 'light' : 'dark');
 }
-
-// Load theme immediately
 document.addEventListener('DOMContentLoaded', loadTheme);
 
 // ========== LOCALSTORAGE ==========
@@ -48,7 +45,7 @@ function saveSelectedUsers() {
 }
 loadSelectedUsers();
 
-// ========== INSTRUCTIONS TOGGLE ==========
+// ========== INSTRUCTIONS ==========
 function toggleInstructions() {
     document.getElementById('instructionsBody').classList.toggle('open');
     document.getElementById('toggleIcon').classList.toggle('rotated');
@@ -111,17 +108,30 @@ function findFileInZip(zip, possibleNames) {
     return null;
 }
 
-async function parseJSONFile(zip, possibleNames) {
-    const file = findFileInZip(zip, possibleNames);
+// ========== PARSE FILE (JSON or HTML) ==========
+async function parseDataFile(zip, baseNames) {
+    const allNames = [];
+    baseNames.forEach(name => {
+        allNames.push(name + '.json');
+        allNames.push(name + '.html');
+    });
+
+    const file = findFileInZip(zip, allNames);
     if (!file) {
-        console.warn('⚠️ Not found:', possibleNames.join(' OR '));
+        console.warn('⚠️ Not found:', baseNames.join(' OR '));
         return null;
     }
+
     try {
         const text = await file.async('text');
-        const data = JSON.parse(text);
-        console.log('✅ Loaded:', file.name);
-        return data;
+        const isHtml = file.name.toLowerCase().endsWith('.html');
+        if (isHtml) {
+            console.log('✅ Loaded (HTML):', file.name);
+            return { __isHtml: true, html: text };
+        } else {
+            console.log('✅ Loaded (JSON):', file.name);
+            return JSON.parse(text);
+        }
     } catch (e) {
         console.error('❌ Parse error:', e);
         return null;
@@ -144,9 +154,8 @@ function extractUsernameFromHref(href) {
     return null;
 }
 
-// ========== EXTRACT USERS ==========
-function extractUsers(data) {
-    if (!data) return [];
+// ========== EXTRACT USERS FROM HTML ==========
+function extractUsersFromHTML(htmlText) {
     const users = [];
     const seen = new Set();
 
@@ -154,6 +163,57 @@ function extractUsers(data) {
         if (!username || typeof username !== 'string') return;
         username = username.trim();
         if (username.length === 0 || username.length > 50) return;
+        const nonUsernames = ['_u', 'p', 'reel', 'reels', 'explore', 'stories', 'tv', 'accounts'];
+        if (nonUsernames.includes(username.toLowerCase())) return;
+        if (username.includes(' ') || username.includes('\n')) return;
+        const key = username.toLowerCase();
+        if (seen.has(key)) return;
+        seen.add(key);
+        users.push({ username, timestamp: timestamp || '' });
+    }
+
+    try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+        const links = doc.querySelectorAll('a[href*="instagram.com"]');
+
+        links.forEach(link => {
+            const href = link.getAttribute('href') || '';
+            let username = null;
+            let match = href.match(/instagram\.com\/_u\/([^/?#\s]+)/);
+            if (match && match[1]) username = match[1].trim();
+            else {
+                match = href.match(/instagram\.com\/([^/?#\s]+)/);
+                if (match && match[1]) username = match[1].trim();
+            }
+            if (!username) {
+                const text = link.textContent.trim();
+                if (text && /^[a-zA-Z0-9._]+$/.test(text)) username = text;
+            }
+            if (username) addUser(username, '');
+        });
+    } catch (e) {
+        console.error('HTML parse error:', e);
+    }
+
+    console.log('   👥 Extracted', users.length, 'users from HTML');
+    return users;
+}
+
+// ========== EXTRACT USERS — HANDLES ALL INSTAGRAM JSON FORMATS ==========
+function extractUsers(data) {
+    if (!data) return [];
+
+    if (data.__isHtml) return extractUsersFromHTML(data.html);
+
+    const users = [];
+    const seen = new Set();
+
+    function addUser(username, timestamp) {
+        if (!username || typeof username !== 'string') return;
+        username = username.trim();
+        if (username.length === 0 || username.length > 50) return;
+        if (username.includes(' ') || username.includes('\n') || username.includes('"')) return;
         const key = username.toLowerCase();
         if (seen.has(key)) return;
         seen.add(key);
@@ -165,10 +225,25 @@ function extractUsers(data) {
 
     function processEntry(entry) {
         if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return false;
+
         let username = null;
         let timestamp = null;
 
-        if (Array.isArray(entry.string_list_data) && entry.string_list_data.length > 0) {
+        // Direct timestamp on entry (for label_values format)
+        if (typeof entry.timestamp === 'number') timestamp = entry.timestamp;
+
+        // FORMAT 1: label_values array (pending, blocked, restricted, recent_requests, close_friends, hide_story_from, etc.)
+        if (Array.isArray(entry.label_values)) {
+            for (const lv of entry.label_values) {
+                if (lv && lv.label === 'Username' && lv.value && typeof lv.value === 'string' && lv.value.trim()) {
+                    username = lv.value.trim();
+                    break;
+                }
+            }
+        }
+
+        // FORMAT 2: string_list_data array (followers, following)
+        if (!username && Array.isArray(entry.string_list_data) && entry.string_list_data.length > 0) {
             const sld = entry.string_list_data[0];
             if (typeof sld.timestamp === 'number') timestamp = sld.timestamp;
             if (sld.value && typeof sld.value === 'string' && sld.value.trim()) {
@@ -177,9 +252,13 @@ function extractUsers(data) {
                 username = extractUsernameFromHref(sld.href);
             }
         }
+
+        // FORMAT 3: title field (following.json)
         if (!username && entry.title && typeof entry.title === 'string' && entry.title.trim()) {
             username = entry.title.trim();
         }
+
+        // FORMAT 4: direct username field
         if (!username && entry.username && typeof entry.username === 'string') {
             username = entry.username.trim();
         }
@@ -207,8 +286,21 @@ function extractUsers(data) {
         }
     }
 
-    findAndProcess(data);
+    // Special handling for single-object files (like close_friends.json, hide_story_from.json)
+    if (!Array.isArray(data) && typeof data === 'object') {
+        if (Array.isArray(data.label_values)) {
+            processEntry(data);
+        } else {
+            findAndProcess(data);
+        }
+    } else {
+        findAndProcess(data);
+    }
+
     console.log('   👥 Extracted', users.length, 'users');
+    if (users.length > 0) {
+        console.log('   📝 First 3:', users.slice(0, 3).map(u => u.username).join(', '));
+    }
     return users;
 }
 
@@ -223,30 +315,18 @@ async function analyzeData() {
 
         console.log('═══════════════════════════════════');
         console.log('📂 FILES IN ZIP:');
-
-
-// Check if ZIP contains HTML files instead of JSON
-const allFiles = Object.keys(zip.files);
-const hasJsonFiles = allFiles.some(f => f.toLowerCase().endsWith('.json'));
-const hasHtmlFiles = allFiles.some(f => f.toLowerCase().endsWith('.html') && f.includes('connections'));
-
-if (!hasJsonFiles && hasHtmlFiles) {
-    loader.classList.add('hidden');
-    showToast('❌ This ZIP contains HTML files. Please download again with JSON format selected!', 'error');
-    throw new Error('Wrong format: HTML files detected. Please download Instagram data in JSON format.');
-}
-
-
         Object.keys(zip.files).forEach(p => { if (!zip.files[p].dir) console.log('   📄', p); });
         console.log('═══════════════════════════════════');
 
-        const followersRaw = await parseJSONFile(zip, ['followers_1.json', 'followers.json']);
-        const followingRaw = await parseJSONFile(zip, ['following.json', 'following_1.json']);
-        const pendingRaw = await parseJSONFile(zip, ['pending_follow_requests.json']);
-        const blockedRaw = await parseJSONFile(zip, ['blocked_profiles.json']);
-        const recentlyUnfollowedRaw = await parseJSONFile(zip, ['recently_unfollowed_profiles.json', 'recently_unfollowed_accounts.json']);
-        const recentRequestsRaw = await parseJSONFile(zip, ['recent_follow_requests.json']);
-        const restrictedRaw = await parseJSONFile(zip, ['restricted_profiles.json']);
+        const followersRaw = await parseDataFile(zip, ['followers_1', 'followers']);
+        const followingRaw = await parseDataFile(zip, ['following', 'following_1']);
+        const pendingRaw = await parseDataFile(zip, ['pending_follow_requests']);
+        const blockedRaw = await parseDataFile(zip, ['blocked_profiles']);
+        const recentlyUnfollowedRaw = await parseDataFile(zip, ['recently_unfollowed_profiles', 'recently_unfollowed_accounts']);
+        const recentRequestsRaw = await parseDataFile(zip, ['recent_follow_requests']);
+        const restrictedRaw = await parseDataFile(zip, ['restricted_profiles']);
+        const closeFriendsRaw = await parseDataFile(zip, ['close_friends']);
+        const hideStoryFromRaw = await parseDataFile(zip, ['hide_story_from']);
 
         appData.followers = extractUsers(followersRaw);
         appData.following = extractUsers(followingRaw);
@@ -255,26 +335,30 @@ if (!hasJsonFiles && hasHtmlFiles) {
         appData.recentlyUnfollowed = extractUsers(recentlyUnfollowedRaw);
         appData.recentRequests = extractUsers(recentRequestsRaw);
         appData.restricted = extractUsers(restrictedRaw);
+        appData.closeFriends = extractUsers(closeFriendsRaw);
+        appData.hideStoryFrom = extractUsers(hideStoryFromRaw);
 
         const followerSet = new Set(appData.followers.map(u => u.username.toLowerCase()));
         const followingSet = new Set(appData.following.map(u => u.username.toLowerCase()));
 
-        // Unfollowers: You follow them, they don't follow you back
         appData.unfollowers = appData.following.filter(u => !followerSet.has(u.username.toLowerCase()));
-
-        // Fans: They follow you, you don't follow back
         appData.fans = appData.followers.filter(u => !followingSet.has(u.username.toLowerCase()));
-
-        // Mutuals: You follow each other
         appData.mutuals = appData.following.filter(u => followerSet.has(u.username.toLowerCase()));
 
         console.log('═══════════════════════════════════');
         console.log('📈 RESULTS:');
-        console.log('   Followers:    ' + appData.followers.length);
-        console.log('   Following:    ' + appData.following.length);
-        console.log('   Mutuals:      ' + appData.mutuals.length);
-        console.log('   Unfollowers:  ' + appData.unfollowers.length);
-        console.log('   Fans:         ' + appData.fans.length);
+        console.log('   Followers:        ' + appData.followers.length);
+        console.log('   Following:        ' + appData.following.length);
+        console.log('   Mutuals:          ' + appData.mutuals.length);
+        console.log('   Unfollowers:      ' + appData.unfollowers.length);
+        console.log('   Fans:             ' + appData.fans.length);
+        console.log('   Pending:          ' + appData.pending.length);
+        console.log('   Blocked:          ' + appData.blocked.length);
+        console.log('   Recently Unf.:    ' + appData.recentlyUnfollowed.length);
+        console.log('   Recent Requests:  ' + appData.recentRequests.length);
+        console.log('   Restricted:       ' + appData.restricted.length);
+        console.log('   Close Friends:    ' + appData.closeFriends.length);
+        console.log('   Hide Story From:  ' + appData.hideStoryFrom.length);
         console.log('═══════════════════════════════════');
 
         if (appData.followers.length === 0 && appData.following.length === 0) {
@@ -318,6 +402,8 @@ function updateStats() {
     document.getElementById('tabRecentlyUnfollowed').textContent = appData.recentlyUnfollowed.length;
     document.getElementById('tabRecentRequests').textContent = appData.recentRequests.length;
     document.getElementById('tabRestricted').textContent = appData.restricted.length;
+    document.getElementById('tabCloseFriends').textContent = appData.closeFriends.length;
+    document.getElementById('tabHideStoryFrom').textContent = appData.hideStoryFrom.length;
 }
 
 function switchTab(tab, element) {
@@ -326,6 +412,26 @@ function switchTab(tab, element) {
     if (element) element.classList.add('active');
     document.getElementById('searchInput').value = '';
     renderList();
+}
+
+// ========== EMPTY STATE MESSAGES ==========
+function getEmptyStateHTML() {
+    const messages = {
+        unfollowers: { icon: 'fa-smile-beam', title: 'Great news!', desc: 'Everyone you follow also follows you back.' },
+        fans: { icon: 'fa-handshake', title: 'No one-sided fans', desc: 'You follow back everyone who follows you.' },
+        mutuals: { icon: 'fa-user-friends', title: 'No mutual followers', desc: 'No one follows you and is followed by you.' },
+        followers: { icon: 'fa-users', title: 'No followers found', desc: 'Your followers data is empty.' },
+        following: { icon: 'fa-user-plus', title: 'Not following anyone', desc: 'Your following list is empty.' },
+        pending: { icon: 'fa-clock', title: 'No pending requests', desc: 'You have no follow requests waiting to be accepted.' },
+        blocked: { icon: 'fa-ban', title: 'No blocked accounts', desc: "You haven't blocked anyone on Instagram." },
+        recentlyUnfollowed: { icon: 'fa-user-slash', title: 'No recent unfollows', desc: "You haven't unfollowed anyone recently." },
+        recentRequests: { icon: 'fa-paper-plane', title: 'No recent requests', desc: 'No recent follow requests found.' },
+        restricted: { icon: 'fa-eye-slash', title: 'No restricted accounts', desc: "You haven't restricted anyone on Instagram." },
+        closeFriends: { icon: 'fa-star', title: 'No close friends', desc: "You haven't added anyone to your close friends list." },
+        hideStoryFrom: { icon: 'fa-user-secret', title: 'Story visible to all', desc: "You haven't hidden your story from anyone." }
+    };
+    const msg = messages[currentTab] || { icon: 'fa-inbox', title: 'No data', desc: 'No users found in this category.' };
+    return `<i class="fas ${msg.icon}"></i><h3>${msg.title}</h3><p>${msg.desc}</p>`;
 }
 
 // ========== RENDER LIST ==========
@@ -338,7 +444,11 @@ function renderList() {
     if (searchQuery) data = data.filter(u => u.username.toLowerCase().includes(searchQuery));
 
     list.innerHTML = '';
-    if (data.length === 0) { emptyState.classList.remove('hidden'); return; }
+    if (data.length === 0) {
+        emptyState.classList.remove('hidden');
+        emptyState.innerHTML = getEmptyStateHTML();
+        return;
+    }
     emptyState.classList.add('hidden');
 
     const fragment = document.createDocumentFragment();
@@ -392,13 +502,12 @@ function renderList() {
         visitLink.rel = 'noopener noreferrer';
         visitLink.innerHTML = '<i class="fab fa-instagram"></i> <span>Visit</span>';
 
-        // CHECK/TICK button — behavior depends on selection state
+        // Tick button: opens IG + marks (only when unmarked); just unmarks (when marked)
         const selectBtn = document.createElement(isSelected ? 'button' : 'a');
         selectBtn.className = 'btn-select' + (isSelected ? ' selected' : '');
         selectBtn.innerHTML = '<i class="fas ' + (isSelected ? 'fa-undo' : 'fa-check') + '"></i>';
 
         if (isSelected) {
-            // Already marked: just unmark, NO Instagram visit
             selectBtn.title = 'Unmark this user';
             selectBtn.type = 'button';
             selectBtn.addEventListener('click', (e) => {
@@ -407,12 +516,11 @@ function renderList() {
                 toggleSelect(user.username);
             });
         } else {
-            // Not marked: open Instagram AND mark as selected
             selectBtn.title = 'Mark as checked & visit profile';
             selectBtn.href = profileUrl;
             selectBtn.target = '_blank';
             selectBtn.rel = 'noopener noreferrer';
-            selectBtn.addEventListener('click', (e) => {
+            selectBtn.addEventListener('click', () => {
                 toggleSelect(user.username);
             });
         }
@@ -433,7 +541,6 @@ function toggleSelect(username) {
     if (selectedUsers.has(key)) selectedUsers.delete(key);
     else selectedUsers.add(key);
     saveSelectedUsers();
-    // Use setTimeout so the link click registers before re-render
     setTimeout(() => renderList(), 50);
 }
 
@@ -445,6 +552,7 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// ========== TOAST ==========
 function showToast(message, type = 'info') {
     const existing = document.querySelector('.toast');
     if (existing) existing.remove();
@@ -457,7 +565,7 @@ function showToast(message, type = 'info') {
     setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 4000);
 }
 
-// ========== DOWNLOADS ==========
+// ========== DOWNLOAD HELPERS ==========
 function getCreditsText() {
     return `Generated by Instagram Unfollowers Finder
 Developer: Amal Dev TS
@@ -474,7 +582,9 @@ function getTabTitle() {
         followers: 'Followers', following: 'Following',
         pending: 'Pending Follow Requests', blocked: 'Blocked Profiles',
         recentlyUnfollowed: 'Recently Unfollowed', recentRequests: 'Recent Follow Requests',
-        restricted: 'Restricted Profiles'
+        restricted: 'Restricted Profiles',
+        closeFriends: 'Close Friends',
+        hideStoryFrom: "Hidden Story From (People who can't see your stories)"
     };
     return t[currentTab] || currentTab;
 }
@@ -485,16 +595,18 @@ function getTabShortTitle() {
         followers: 'Followers', following: 'Following',
         pending: 'Pending', blocked: 'Blocked',
         recentlyUnfollowed: 'Recently Unfollowed',
-        recentRequests: 'Recent Requests', restricted: 'Restricted'
+        recentRequests: 'Recent Requests', restricted: 'Restricted',
+        closeFriends: 'Close Friends', hideStoryFrom: 'Hide Story From'
     };
     return t[currentTab] || currentTab;
 }
 
 function getCurrentData() { return appData[currentTab] || []; }
 
+// ========== PDF ==========
 function downloadPDF() {
     const data = getCurrentData();
-    if (data.length === 0) { showToast('No data', 'error'); return; }
+    if (data.length === 0) { showToast('No data to download', 'error'); return; }
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const pw = doc.internal.pageSize.getWidth();
@@ -526,6 +638,7 @@ function downloadPDF() {
     showToast('PDF downloaded!', 'success');
 }
 
+// ========== JSON ==========
 function downloadJSON() {
     const data = getCurrentData();
     if (data.length === 0) { showToast('No data', 'error'); return; }
@@ -542,6 +655,7 @@ function downloadJSON() {
     URL.revokeObjectURL(url); showToast('JSON downloaded!', 'success');
 }
 
+// ========== HTML ==========
 function downloadHTML() {
     const data = getCurrentData();
     if (data.length === 0) { showToast('No data', 'error'); return; }
@@ -558,22 +672,15 @@ function downloadHTML() {
     URL.revokeObjectURL(url); showToast('HTML downloaded!', 'success');
 }
 
-
-// ========== CSV DOWNLOAD ==========
+// ========== CSV ==========
 function downloadCSV() {
-    console.log('🔽 CSV download clicked');
     const data = getCurrentData();
-    if (data.length === 0) {
-        showToast('No data to download', 'error');
-        return;
-    }
+    if (data.length === 0) { showToast('No data to download', 'error'); return; }
 
     function csvEscape(value) {
         if (value === null || value === undefined) return '';
         const str = String(value);
-        if (/[",\n\r]/.test(str)) {
-            return '"' + str.replace(/"/g, '""') + '"';
-        }
+        if (/[",\n\r]/.test(str)) return '"' + str.replace(/"/g, '""') + '"';
         return str;
     }
 
@@ -610,7 +717,5 @@ function downloadCSV() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-
     showToast('CSV downloaded!', 'success');
-    console.log('✅ CSV downloaded:', data.length, 'rows');
 }

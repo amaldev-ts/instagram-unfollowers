@@ -7,11 +7,9 @@ desktop.ini
 .vscode/
 .idea/
 *.swp
-*.swo
 
 # Logs
 *.log
-npm-debug.log*
 
 # Test data
 test-data/
